@@ -5,7 +5,47 @@
 **a. Initial design**
 
 - Briefly describe your initial UML design.
+
+Must haves:
+App needs to have owner information in the system if it's not already in. Include info like name, contact number, email, pets owned
+Owner can enter pet information that includes pet name, diet, special needs etc. 
+Owner can set total available minutes for the day
+Tasks have a title, duration and priority
+High priority tasks take precedence over low priority tasks
+Schedule shows task order, time slots and total time used
+
+
+Some of the edge cases that I need to look out for are:
+What if no tasks are added and a request is made to generate a schedule?
+What happens when a single task's duration exceeds the total available time?
+What happens when some tasks do not fit and are dropped?
+What happens if owner information is inputted incompletely?
+What if duplicate pet names are present?
+What if total available minutes are set to 0? Should there be a minimum number of minutes auto assigned for each task?
+What happens when all tasks have same priority? What decides tie breakers?
+
+
 - What classes did you include, and what responsibilities did you assign to each?
+
+Class:
+Owner
+Pet
+Tasks
+Scheduler
+
+Attributes:
+Owner -> name, email, available minutes, pets
+Pet -> name, species, special needs
+Task -> title, duration minutes, priority
+Scheduler -> owner, pet, tasks
+
+Methods:
+Owner -> update_owner(name, email, available_minutes), add_pet(pet)
+Pet -> update_pet(name, species, special_needs)
+Task -> update_task(title, duration minutes, priority)
+Scheduler -> build_schedule(), explain_plan(), add_task(task)
+
+
 
 **b. Design changes**
 
