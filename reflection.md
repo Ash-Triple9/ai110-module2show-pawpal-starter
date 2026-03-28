@@ -36,7 +36,7 @@ Scheduler
 Attributes:
 Owner -> name, email, available minutes, pets
 Pet -> name, species, special needs
-Task -> title, duration minutes, priority
+Task -> title, duration minutes, priority, pet_name
 Scheduler -> owner, pet, tasks
 
 Methods:
@@ -50,8 +50,10 @@ Scheduler -> build_schedule(), explain_plan(), add_task(task)
 **b. Design changes**
 
 - Did your design change during implementation?
+Yes, I asked the AI agent in Cursor about my UML design as well as the responsibilities that I assigned to my classes.
 - If yes, describe at least one change and why you made it.
-
+One of the changes that I made after my initial design is removing a method called request_schedule() that I assigned to the Owner class. I realized that the Owner class is a data container which holds information about the person and should not be responsible for trigerring schedule logic. Since the scheduler class already had a build_schedule() method, I made the decision to remove the request_schedule() method.
+It also suggested that Task class should have a field for the pet that the task is assigned to, which I felt is a good addition as well.
 ---
 
 ## 2. Scheduling Logic and Tradeoffs
