@@ -2,6 +2,22 @@
 
 You are building **PawPal+**, a Streamlit app that helps a pet owner plan care tasks for their pet.
 
+---
+
+## 📸 Demo
+
+**Owner & Pet setup** — enter owner name, daily time budget, and register pets by species.
+
+<a href="Pal1.png" target="_blank"><img src='Pal1.png' title='PawPal App – Owner and Pet setup' width='' alt='PawPal App – Owner and Pet setup' class='center-block' /></a>
+
+**Task management & schedule generation** — add tasks with priority, frequency, and optional preferred start time; the scheduler fills the time budget and flags skipped tasks.
+
+<a href="Pal2.png" target="_blank"><img src='Pal2.png' title='PawPal App – Tasks and Schedule' width='' alt='PawPal App – Tasks and Schedule' class='center-block' /></a>
+
+**Full plan explanation** — plain-text summary of every scheduled and skipped task with exact time slots and priorities.
+
+<a href="Pal3.png" target="_blank"><img src='Pal3.png' title='PawPal App – Plan explanation' width='' alt='PawPal App – Plan explanation' class='center-block' /></a>
+
 ## Scenario
 
 A busy pet owner needs help staying consistent with pet care. They want an assistant that can:
@@ -41,6 +57,40 @@ pip install -r requirements.txt
 5. Add tests to verify key behaviors.
 6. Connect your logic to the Streamlit UI in `app.py`.
 7. Refine UML so it matches what you actually built.
+
+---
+
+## Features
+
+### Scheduling algorithms
+
+- **Greedy priority scheduling** — Tasks are sorted by priority (`high → medium → low`) and then by duration (shorter first within the same tier) before being assigned. The scheduler greedily accepts each task in order as long as it fits within the owner's daily time budget, maximising the number of tasks completed.
+
+- **Sorting by time** — `Scheduler.sort_by_time()` reorders the task pool chronologically by each task's `preferred_time` (`"HH:MM"` 24-hour). Zero-padded 24-hour strings are lexicographically identical to chronological order, so no integer parsing is needed. Tasks with no `preferred_time` sort to the end via a `"99:99"` sentinel.
+
+- **Contiguous time-slot assignment** — After greedy selection, `build_schedule()` assigns each task a `scheduled_start` (minutes from midnight), beginning at `day_start_minutes` (default 08:00) and advancing by each task's duration. `explain_plan()` renders these as human-readable 12-hour clock ranges (e.g. `8:00 AM – 8:30 AM`).
+
+### Recurrence
+
+- **Daily recurrence** — When `Pet.complete_and_reschedule()` is called on a `"daily"` task, the original is marked complete and a new instance is created with `next_due_date = today + timedelta(days=1)`. The new task is invisible in today's schedule but surfaces automatically the following day.
+
+- **Weekly recurrence** — `"weekly"` tasks follow the same pattern with `next_due_date = today + timedelta(days=7)`. `Task.is_due_today()` additionally gates these tasks by `last_done_date`: a weekly task completed fewer than 7 days ago is withheld from `get_pending_tasks()` entirely.
+
+- **As-needed tasks** — `"as_needed"` tasks are marked complete with no follow-up occurrence created. They reappear in the pending list only when manually added again.
+
+### Conflict warnings
+
+- **Time-overlap detection** — After every `build_schedule()` call, `detect_time_conflicts()` checks every pair of timed tasks (across all pets) for `preferred_time` window overlaps using the standard interval test (`a_start < b_end AND b_start < a_end`). Each warning names both tasks, their pets, and the exact clash window (e.g. `"clash from 8:20 AM to 8:30 AM"`).
+
+- **Priority-inversion detection** — If a higher-priority task was skipped (because it was too long to fit the remaining budget) while at least one lower-priority task was scheduled, the scheduler flags it and suggests either shortening the task or increasing available time.
+
+### Filtering
+
+- **Status and pet filtering** — `Scheduler.filter_tasks(pet_name, completed)` returns a filtered view of the task pool. Both parameters are optional and composable: filter to one pet, to all pending tasks, or to a specific pet's completed tasks.
+
+### Validation
+
+- **Input validation** — `Task.__post_init__()` raises `ValueError` for any invalid `priority` (must be `"high"`, `"medium"`, or `"low"`), invalid `frequency` (must be `"daily"`, `"weekly"`, or `"as_needed"`), or malformed `preferred_time` (must be a valid `"HH:MM"` 24-hour string).
 
 ---
 
