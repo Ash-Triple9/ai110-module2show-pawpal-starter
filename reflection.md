@@ -66,7 +66,12 @@ It also suggested that Task class should have a field for the pet that the task 
 **b. Tradeoffs**
 
 - Describe one tradeoff your scheduler makes.
+
+The scheduler uses a **greedy algorithm** rather than an optimal one. Tasks are sorted by priority (high → medium → low) and then by duration (shortest first within the same tier), and they are added to the schedule one by one until the time budget runs out. This means the scheduler can produce a suboptimal result — for example, if the owner has 60 minutes available and the tasks are a high-priority 55-minute walk and two medium-priority 30-minute tasks, the greedy approach picks the 55-minute walk first (leaving only 5 minutes), skipping both 30-minute tasks. An optimal solver (like a 0/1 knapsack algorithm) would instead pick the two 30-minute tasks, completing twice as many activities in the same window.
+
 - Why is that tradeoff reasonable for this scenario?
+
+For a daily pet care app with a realistic task list of 5–20 items, the greedy approach is entirely reasonable. It is fast (O(n log n) for the sort), easy to understand, and easy to explain to an owner — "high-priority tasks go first, and shorter tasks are preferred when priorities are equal." An optimal knapsack solution would add significant code complexity and would be much harder to reason about or debug, without meaningfully improving outcomes for the small task counts this app is designed for. The priority inversion warning system also partially compensates for the greedy approach's weakness by alerting the owner whenever a higher-priority task was skipped while lower-priority ones were scheduled.
 
 ---
 
